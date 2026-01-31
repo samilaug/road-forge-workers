@@ -6,10 +6,18 @@ import type {
   ValidateRequest,
   DeactivateRequest,
 } from './types';
+import { createAuth } from './auth';
 import { handlePaddleWebhook } from './handlers/paddle';
 import { handleActivate } from './handlers/activate';
 import { handleValidate } from './handlers/validate';
 import { handleDeactivate } from './handlers/deactivate';
+import {
+  handleGetLicense,
+  handleGetDevices,
+  handleDeactivateDevice,
+  handleDownloadLicense,
+  handleGetProfile,
+} from './handlers/dashboard';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -26,7 +34,17 @@ app.get('/', (c) => {
   return c.json({ status: 'ok', service: 'Road Forge License Server' });
 });
 
-// Paddle webhook endpoint (called by Paddle on purchases/refunds)
+// ===========================================
+// Better Auth routes (mounted at /auth/*)
+// ===========================================
+app.all('/auth/*', async (c) => {
+  const auth = createAuth(c.env);
+  return auth.handler(c.req.raw);
+});
+
+// ===========================================
+// Paddle webhook
+// ===========================================
 app.post('/webhooks/paddle', async (c) => {
   try {
     return await handlePaddleWebhook(c.req.raw, c.env);
@@ -36,7 +54,9 @@ app.post('/webhooks/paddle', async (c) => {
   }
 });
 
-// License activation endpoint (called by app on license import)
+// ===========================================
+// License endpoints (called by Tauri app)
+// ===========================================
 app.post('/licenses/activate', async (c) => {
   try {
     const body = await c.req.json<ActivateRequest>();
@@ -47,7 +67,6 @@ app.post('/licenses/activate', async (c) => {
   }
 });
 
-// License validation endpoint (called by app on startup)
 app.post('/licenses/validate', async (c) => {
   try {
     const body = await c.req.json<ValidateRequest>();
@@ -58,7 +77,6 @@ app.post('/licenses/validate', async (c) => {
   }
 });
 
-// Device deactivation endpoint (called by app to free up device slot)
 app.post('/devices/deactivate', async (c) => {
   try {
     const body = await c.req.json<DeactivateRequest>();
@@ -68,6 +86,15 @@ app.post('/devices/deactivate', async (c) => {
     return c.json({ error: 'Invalid request' }, 400);
   }
 });
+
+// ===========================================
+// Dashboard endpoints (protected, called by website)
+// ===========================================
+app.get('/dashboard/profile', handleGetProfile);
+app.get('/dashboard/license', handleGetLicense);
+app.get('/dashboard/devices', handleGetDevices);
+app.post('/dashboard/devices/:id/deactivate', handleDeactivateDevice);
+app.get('/dashboard/license/download', handleDownloadLicense);
 
 // 404 handler
 app.notFound((c) => {
