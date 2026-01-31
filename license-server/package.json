@@ -1,0 +1,20 @@
+{
+  "name": "roadforge-license-server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "db:migrate": "wrangler d1 migrations apply roadforge_licenses --remote",
+    "db:migrate:local": "wrangler d1 migrations apply roadforge_licenses --local"
+  },
+  "dependencies": {
+    "better-auth": "^1.2.0",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.0.0",
+    "wrangler": "^4.61.1"
+  }
+}

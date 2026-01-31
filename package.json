@@ -1,0 +1,14 @@
+{
+  "name": "road-forge-workers",
+  "private": true,
+  "description": "Cloudflare Workers for Road Forge (license server, API)",
+  "scripts": {
+    "dev": "cd license-server && wrangler dev",
+    "deploy": "cd license-server && wrangler deploy",
+    "db:migrate": "cd license-server && wrangler d1 migrations apply roadforge_licenses",
+    "db:migrate:local": "cd license-server && wrangler d1 migrations apply roadforge_licenses --local"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

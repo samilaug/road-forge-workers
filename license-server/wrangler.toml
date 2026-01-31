@@ -1,0 +1,21 @@
+name = "roadforge-license-server"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+ENVIRONMENT = "production"
+
+# D1 Database - YOU NEED TO CREATE THIS FIRST
+# Run: wrangler d1 create roadforge_licenses
+# Then update database_id below
+[[d1_databases]]
+binding = "DB"
+database_name = "roadforge_licenses"
+database_id = "YOUR_D1_DATABASE_ID_HERE"
+
+# Secrets (set via wrangler secret put):
+# - ED25519_PRIVATE_KEY
+# - PADDLE_WEBHOOK_SECRET
+# - PADDLE_PRODUCT_ID
+# - RESEND_API_KEY
+# - BETTER_AUTH_SECRET
